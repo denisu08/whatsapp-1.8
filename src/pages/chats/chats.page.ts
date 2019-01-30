@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import * as moment from 'moment';
-import { Chat, MessageType } from '../../models';
+import { Chat, MessageType } from 'api/models';
 import { map } from 'rxjs/operators';
 import { IonItemSliding } from '@ionic/angular';
 
@@ -36,7 +36,7 @@ export class ChatsPage {
         title: 'Bryan Wallace',
         picture: 'https://randomuser.me/api/portraits/thumb/lego/1.jpg',
         lastMessage: {
-          content: 'Hey, it\'s me',
+          content: "Hey, it's me",
           createdAt: moment()
             .subtract(2, 'hours')
             .toDate(),
