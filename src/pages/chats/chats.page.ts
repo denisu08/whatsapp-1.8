@@ -6,6 +6,8 @@ import { Chat } from 'api/models';
 import { tap, map, mergeMap, startWith } from 'rxjs/operators';
 import { IonItemSliding } from '@ionic/angular';
 import { zoneOperator } from 'meteor-rxjs';
+import { NavController } from '@ionic/angular';
+import { MessagesPage } from '../messages/messages.page';
 
 @Component({
   selector: 'app-chats',
@@ -15,7 +17,7 @@ import { zoneOperator } from 'meteor-rxjs';
 export class ChatsPage implements OnInit {
   chats;
 
-  constructor() {}
+  constructor(private navCtrl: NavController) {}
 
   ngOnInit() {
     this.chats = Chats.find({}).pipe(
@@ -37,6 +39,10 @@ export class ChatsPage implements OnInit {
       tap(val => val),
       zoneOperator(),
     );
+  }
+
+  showMessages(chat): void {
+    this.navCtrl.navigateRoot(`messages/${chat._id}`);
   }
 
   removeChat(slidingItem: IonItemSliding, chat: Chat): void {

@@ -5,7 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { MomentModule } from 'angular2-moment';
-import { ChatsPage } from './chats.page';
+import { MessagesPage } from './messages.page';
+
+// import { NavParams } from '@ionic/angular';
 
 @NgModule({
   imports: [
@@ -15,11 +17,11 @@ import { ChatsPage } from './chats.page';
     RouterModule.forChild([
       {
         path: '',
-        component: ChatsPage,
+        component: MessagesPage,
       },
     ]),
     MomentModule,
   ],
-  declarations: [ChatsPage],
+  declarations: [MessagesPage],
 })
-export class ChatsPageModule {}
+export class MessagesPageModule {}

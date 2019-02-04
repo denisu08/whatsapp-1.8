@@ -1,5 +1,5 @@
 export enum MessageType {
-  TEXT = <any>'text'
+  TEXT = <any>'text',
 }
 
 export interface Chat {
@@ -15,4 +15,5 @@ export interface Message {
   content?: string;
   createdAt?: Date;
   type?: MessageType;
+  ownership?: string;
 }
