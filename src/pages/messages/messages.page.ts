@@ -13,6 +13,8 @@ import { map } from 'rxjs/operators';
 import { MeteorObservable } from 'meteor-rxjs';
 import { zoneOperator } from 'meteor-rxjs';
 import { IonContent } from '@ionic/angular';
+import * as moment from 'moment';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'messages-page',
@@ -25,6 +27,7 @@ export class MessagesPage implements OnInit, OnDestroy {
   selectedChat: Chat;
   title: string;
   picture: string;
+  messagesDayGroups;
   messages: Observable<Message[]>;
   message = '';
   autoScroller: MutationObserver;
@@ -55,22 +58,48 @@ export class MessagesPage implements OnInit, OnDestroy {
     (this.content.getScrollElement() as any).then(el => {
       this.scrollElement = el;
       this.autoScroller = this.autoScroll();
-
-      let isEven = false;
-      this.messages = Messages.find(
-        { chatId: this.selectedChat._id },
-        { sort: { createdAt: 1 } },
-      ).pipe(
-        map((messages: Message[]) => {
-          messages.forEach((message: Message) => {
-            message.ownership = isEven ? 'mine' : 'other';
-            isEven = !isEven;
-          });
-
-          return messages;
-        }),
-      );
+      this.subscribeMessages();
     });
+  }
+
+  subscribeMessages() {
+    this.scrollOffset = this.scrollElement.scrollHeight;
+    this.messagesDayGroups = this.findMessagesDayGroups();
+    // this.messagesDayGroups.subscribe(val => console.log('value', val));
+  }
+
+  findMessagesDayGroups() {
+    let isEven = false;
+    return Messages.find(
+      { chatId: this.selectedChat._id },
+      { sort: { createdAt: 1 } },
+    ).pipe(
+      map((messages: Message[]) => {
+        const format = 'D MMMM Y';
+
+        // Compose missing data that we would like to show in the view
+        messages.forEach((message: Message) => {
+          message.ownership = isEven ? 'mine' : 'other';
+          isEven = !isEven;
+          return message;
+        });
+
+        // Group by creation day
+        const groupedMessages = _.groupBy(messages, message => {
+          return moment(message.createdAt).format(format);
+        });
+
+        // Transform dictionary into an array since Angular's view engine doesn't know how
+        // to iterate through it
+        return Object.keys(groupedMessages).map((timestamp: string) => {
+          return {
+            timestamp: timestamp,
+            messages: groupedMessages[timestamp],
+            today: moment().format(format) === timestamp,
+          };
+        });
+      }),
+    );
   }
 
   ngOnDestroy() {
