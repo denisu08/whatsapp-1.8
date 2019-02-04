@@ -15,27 +15,12 @@
     "skipLibCheck": true,
     "stripInternal": true,
     "noImplicitAny": false,
-    "types": [
-      "@types/meteor"
-    ],
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2015",
-      "dom"
-    ]
+    "types": ["@types/meteor"],
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2015", "dom"]
   },
-  "include": [
-    "src/**/*.ts",
-    "api/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "api/node_modules",
-    "api/node_modules",
-    "api"
-  ],
+  "include": ["src/**/*.ts", "api/**/*.ts"],
+  "exclude": ["node_modules", "api/node_modules", "api/node_modules", "api"],
   "compileOnSave": false,
   "atom": {
     "rewriteTsconfig": false

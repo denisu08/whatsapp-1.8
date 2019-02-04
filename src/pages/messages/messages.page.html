@@ -15,9 +15,9 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding class="messages-page-content">
-  <div class="ion-scroll messages">
-    <div *ngFor="let message of (messages | async)" class="day-wrapper">
+<ion-content padding class="messages-page-content" #scrollArea>
+  <div class="messages">
+    <div *ngFor="let message of (messages | async)" class="message-wrapper">
       <div [class]="'message message-' + message.ownership">
         <div
           *ngIf="message.type === 'text'"

@@ -11,9 +11,14 @@
   }
 }
 
+ion-content {
+  --background: url(../../assets/chat-background.jpg) no-repeat center center /
+    cover;
+}
+
 .messages-page-content {
-  .scroll-content {
-    margin: 42px -16px 42px !important;
+  > .scroll-content {
+    margin: -16px !important;
   }
 
   .day-wrapper .day-timestamp {
@@ -60,7 +65,7 @@
 
       &::before {
         right: -11px;
-        background-image: url(../assets/message-mine.png);
+        background-image: url(../../assets/message-mine.png);
       }
     }
 
@@ -70,7 +75,7 @@
 
       &::before {
         left: -11px;
-        background-image: url(../assets/message-other.png);
+        background-image: url(../../assets/message-other.png);
       }
     }
 
@@ -129,6 +134,10 @@ div.ion-scroll[scrollx='true'],
 div.ion-scroll[scrolly='true'] {
   position: relative;
   overflow: hidden;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 div.ion-scroll[scrollx='true'] {
