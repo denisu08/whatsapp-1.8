@@ -9,6 +9,7 @@ import { PhoneService } from '../../services/phone.service';
 @Component({
   selector: 'chats-options',
   templateUrl: 'chats-options.html',
+  styleUrls: ['chats-options.scss'],
 })
 @Injectable()
 export class ChatsOptionsComponent {

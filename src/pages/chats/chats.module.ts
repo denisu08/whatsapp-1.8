@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import { MomentModule } from 'angular2-moment';
 import { ChatsPage } from './chats.page';
+import { ChatsOptionsComponent } from '../chat-options/chats-options';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { ChatsPage } from './chats.page';
     ]),
     MomentModule,
   ],
-  declarations: [ChatsPage],
+  declarations: [ChatsPage, ChatsOptionsComponent],
+  entryComponents: [ChatsOptionsComponent],
 })
 export class ChatsPageModule {}

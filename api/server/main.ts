@@ -1,18 +1,32 @@
 import { Meteor } from 'meteor/meteor';
+import { WebApp } from 'meteor/webapp';
 import { Chats } from './collections/chats';
 import { Messages } from './collections/messages';
 import * as moment from 'moment';
 import { MessageType } from './models';
 // import { Accounts } from 'meteor/accounts-base';
 
+const connectHandler = WebApp.connectHandlers;
+
 Meteor.startup(() => {
+  connectHandler.use(function(req, res, next) {
+    res.setHeader(
+      'Strict-Transport-Security',
+      'max-age=2592000; includeSubDomains',
+    ); // 2592000s / 30 days
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return next();
+  });
+
   // if (Meteor.settings) {
   //   Object.assign(Accounts._options, Meteor.settings['accounts-phone']);
   //   SMS.twilio = Meteor.settings['twilio'];
   // }
 
   // code to run on server at startup
+  console.log('check chats');
   if (Chats.find({}).cursor.count() === 0) {
+    console.log('insert chats');
     let chatId;
 
     chatId = Chats.collection.insert({
@@ -36,7 +50,7 @@ Meteor.startup(() => {
 
     Messages.collection.insert({
       chatId: chatId,
-      content: 'Hey, it\'s me',
+      content: "Hey, it's me",
       createdAt: moment()
         .subtract(2, 'hours')
         .toDate(),

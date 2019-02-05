@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, of, combineLatest } from 'rxjs';
-import * as moment from 'moment';
+import { combineLatest } from 'rxjs';
 import { Chats, Messages } from 'api/collections';
 import { Chat } from 'api/models';
 import { tap, map, mergeMap, startWith } from 'rxjs/operators';
 import { IonItemSliding } from '@ionic/angular';
 import { zoneOperator } from 'meteor-rxjs';
 import { NavController, PopoverController } from '@ionic/angular';
-import { MessagesPage } from '../messages/messages.page';
 import { ChatsOptionsComponent } from '../chat-options/chats-options';
 
 @Component({
@@ -45,19 +43,19 @@ export class ChatsPage implements OnInit {
     );
   }
 
-  async showOptions() {
+  async showOptions(evt) {
     const popover = await this.popoverCtrl.create({
       component: ChatsOptionsComponent,
       componentProps: {
         cssClass: 'options-popover chats-options-popover',
       },
+      event: evt,
     });
 
     popover.present();
   }
 
   showMessages(chat): void {
-    // this.navCtrl.navigateRoot(`messages/${chat._id}`);
     this.navCtrl.navigateForward(`messages/${chat._id}`);
   }
 
