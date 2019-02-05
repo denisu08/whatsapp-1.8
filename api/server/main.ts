@@ -24,9 +24,7 @@ Meteor.startup(() => {
   // }
 
   // code to run on server at startup
-  console.log('check chats');
   if (Chats.find({}).cursor.count() === 0) {
-    console.log('insert chats');
     let chatId;
 
     chatId = Chats.collection.insert({
@@ -50,7 +48,7 @@ Meteor.startup(() => {
 
     Messages.collection.insert({
       chatId: chatId,
-      content: "Hey, it's me",
+      content: 'Hey, it\'s me',
       createdAt: moment()
         .subtract(2, 'hours')
         .toDate(),
