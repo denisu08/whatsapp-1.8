@@ -15,6 +15,7 @@ import { zoneOperator } from 'meteor-rxjs';
 import { IonContent } from '@ionic/angular';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { Meteor } from 'meteor/meteor';
 
 @Component({
   selector: 'messages-page',
@@ -33,6 +34,7 @@ export class MessagesPage implements OnInit, OnDestroy {
   autoScroller: MutationObserver;
   scrollOffset = 0;
   scrollElement: HTMLElement;
+  senderId: string;
 
   constructor(private activatedRoute: ActivatedRoute, private el: ElementRef) {
     this.selectedChat = Chats.findOne({
@@ -40,6 +42,7 @@ export class MessagesPage implements OnInit, OnDestroy {
     });
     this.title = this.selectedChat.title;
     this.picture = this.selectedChat.picture;
+    this.senderId = Meteor.userId();
   }
 
   private get messagesPageContent(): Element {
@@ -69,7 +72,7 @@ export class MessagesPage implements OnInit, OnDestroy {
   }
 
   findMessagesDayGroups() {
-    let isEven = false;
+    // let isEven = false;
     return Messages.find(
       { chatId: this.selectedChat._id },
       { sort: { createdAt: 1 } },
@@ -79,8 +82,10 @@ export class MessagesPage implements OnInit, OnDestroy {
 
         // Compose missing data that we would like to show in the view
         messages.forEach((message: Message) => {
-          message.ownership = isEven ? 'mine' : 'other';
-          isEven = !isEven;
+          message.ownership =
+            this.senderId === message.senderId ? 'mine' : 'other';
+
+          // isEven = !isEven;
           return message;
         });
 

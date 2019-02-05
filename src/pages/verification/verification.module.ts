@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { MomentModule } from 'angular2-moment';
-import { MessagesPage } from './messages.page';
+import { VerificationPage } from './verification.page';
 
 @NgModule({
   imports: [
@@ -15,11 +15,11 @@ import { MessagesPage } from './messages.page';
     RouterModule.forChild([
       {
         path: '',
-        component: MessagesPage,
+        component: VerificationPage,
       },
     ]),
     MomentModule,
   ],
-  declarations: [MessagesPage],
+  declarations: [VerificationPage],
 })
-export class MessagesPageModule {}
+export class VerificationPageModule {}

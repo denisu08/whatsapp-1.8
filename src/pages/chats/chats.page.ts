@@ -6,8 +6,9 @@ import { Chat } from 'api/models';
 import { tap, map, mergeMap, startWith } from 'rxjs/operators';
 import { IonItemSliding } from '@ionic/angular';
 import { zoneOperator } from 'meteor-rxjs';
-import { NavController } from '@ionic/angular';
+import { NavController, PopoverController } from '@ionic/angular';
 import { MessagesPage } from '../messages/messages.page';
+import { ChatsOptionsComponent } from '../chat-options/chats-options';
 
 @Component({
   selector: 'app-chats',
@@ -17,7 +18,10 @@ import { MessagesPage } from '../messages/messages.page';
 export class ChatsPage implements OnInit {
   chats;
 
-  constructor(private navCtrl: NavController) {}
+  constructor(
+    private navCtrl: NavController,
+    private popoverCtrl: PopoverController,
+  ) {}
 
   ngOnInit() {
     this.chats = Chats.find({}).pipe(
@@ -41,8 +45,20 @@ export class ChatsPage implements OnInit {
     );
   }
 
+  async showOptions() {
+    const popover = await this.popoverCtrl.create({
+      component: ChatsOptionsComponent,
+      componentProps: {
+        cssClass: 'options-popover chats-options-popover',
+      },
+    });
+
+    popover.present();
+  }
+
   showMessages(chat): void {
-    this.navCtrl.navigateRoot(`messages/${chat._id}`);
+    // this.navCtrl.navigateRoot(`messages/${chat._id}`);
+    this.navCtrl.navigateForward(`messages/${chat._id}`);
   }
 
   removeChat(slidingItem: IonItemSliding, chat: Chat): void {

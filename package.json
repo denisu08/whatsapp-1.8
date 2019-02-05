@@ -12,7 +12,8 @@
     "e2e": "ng e2e",
     "ionic:build": "ionic-app-scripts build",
     "ionic:serve": "ionic-app-scripts serve",
-    "meteor-client:bundle": "meteor-client bundle -s api"
+    "meteor-client:bundle": "meteor-client bundle -s api",
+    "api": "cd api && meteor run --settings private/settings.json"
   },
   "private": true,
   "dependencies": {
@@ -53,6 +54,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/lodash": "^4.14.120",
     "@types/meteor": "^1.4.24",
+    "@types/meteor-accounts-phone": "0.0.5",
     "@types/node": "~10.12.0",
     "codelyzer": "~4.5.0",
     "jasmine-core": "~2.99.1",

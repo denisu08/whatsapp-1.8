@@ -15,7 +15,7 @@
     "skipLibCheck": true,
     "stripInternal": true,
     "noImplicitAny": false,
-    "types": ["@types/meteor"],
+    "types": ["@types/meteor", "@types/meteor-accounts-phone"],
     "typeRoots": ["node_modules/@types"],
     "lib": ["es2015", "dom"]
   },
