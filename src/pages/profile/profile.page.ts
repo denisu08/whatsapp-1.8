@@ -22,8 +22,8 @@ export class ProfilePage implements OnInit {
   ngOnInit(): void {
     this.profile = Meteor.user().profile || {
       name: '',
+      picture: DEFAULT_PICTURE_URL,
     };
-    this.picture = DEFAULT_PICTURE_URL;
   }
 
   updateProfile(): void {

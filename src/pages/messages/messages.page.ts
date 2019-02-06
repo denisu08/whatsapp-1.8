@@ -8,7 +8,7 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { Chat, Message, MessageType } from 'api/models';
 import { Observable } from 'rxjs';
-import { Chats, Messages } from 'api/collections';
+import { Chats, Messages, Users } from 'api/collections';
 import { map } from 'rxjs/operators';
 import { MeteorObservable } from 'meteor-rxjs';
 import { zoneOperator } from 'meteor-rxjs';
@@ -37,12 +37,23 @@ export class MessagesPage implements OnInit, OnDestroy {
   senderId: string;
 
   constructor(private activatedRoute: ActivatedRoute, private el: ElementRef) {
+    this.senderId = Meteor.userId();
+
     this.selectedChat = Chats.findOne({
       _id: this.activatedRoute.snapshot.paramMap.get('chatId'),
     });
-    this.title = this.selectedChat.title;
-    this.picture = this.selectedChat.picture;
-    this.senderId = Meteor.userId();
+    const receiverId = this.selectedChat.memberIds
+      ? this.selectedChat.memberIds.find(memberId => memberId !== this.senderId)
+      : '';
+    const receiver = Users.findOne(receiverId);
+
+    if (receiver) {
+      this.title = receiver.profile.name;
+      this.picture = receiver.profile.picture;
+    } else {
+      this.title = this.selectedChat.title;
+      this.picture = this.selectedChat.picture;
+    }
   }
 
   private get messagesPageContent(): Element {

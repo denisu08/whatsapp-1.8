@@ -13,7 +13,8 @@
     "ionic:build": "ionic-app-scripts build",
     "ionic:serve": "ionic-app-scripts serve",
     "meteor-client:bundle": "meteor-client bundle -s api",
-    "api": "cd api && meteor run --settings private/settings.json"
+    "api": "cd api && meteor run --settings private/settings.json",
+    "resetAPI": "cd api && meteor reset && meteor run --settings private/settings.json"
   },
   "private": true,
   "dependencies": {
