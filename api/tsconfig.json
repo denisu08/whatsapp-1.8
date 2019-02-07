@@ -12,7 +12,11 @@
     "skipLibCheck": true,
     "stripInternal": true,
     "noImplicitAny": false,
-    "types": ["@types/meteor", "@types/meteor-accounts-phone"],
+    "types": [
+      "@types/meteor",
+      "@types/meteor-accounts-phone",
+      "@types/meteor-publish-composite"
+    ],
     "typeRoots": ["node_modules/@types"]
   },
   "exclude": ["node_modules"],

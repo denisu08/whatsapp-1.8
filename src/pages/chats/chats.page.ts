@@ -3,13 +3,14 @@ import { combineLatest } from 'rxjs';
 import { Chats, Messages, Users } from 'api/collections';
 import { Chat, Message } from 'api/models';
 import { tap, map, mergeMap, startWith } from 'rxjs/operators';
-import { IonItemSliding } from '@ionic/angular';
-import { zoneOperator } from 'meteor-rxjs';
 import {
+  IonItemSliding,
   NavController,
   PopoverController,
   ModalController,
+  AlertController,
 } from '@ionic/angular';
+import { zoneOperator } from 'meteor-rxjs';
 import { ChatsOptionsComponent } from '../chat-options/chats-options';
 import { NewChatComponent } from './new-chat';
 import { MeteorObservable } from 'meteor-rxjs';
@@ -30,6 +31,7 @@ export class ChatsPage implements OnInit {
     private navCtrl: NavController,
     private popoverCtrl: PopoverController,
     private modalCtrl: ModalController,
+    private alertCtrl: AlertController,
   ) {
     this.senderId = Meteor.userId();
   }
@@ -43,27 +45,12 @@ export class ChatsPage implements OnInit {
   }
 
   ngOnInit() {
-    this.chats = this.findChats();
-
-    // this.chats = Chats.find({}).pipe(
-    //   mergeMap((chats: Chat[]) =>
-    //     combineLatest(
-    //       chats.map((chat: Chat) => {
-    //         return Messages.find({ chatId: chat._id }).pipe(
-    //           startWith(null),
-    //           map(messages => {
-    //             if (messages) {
-    //               chat.lastMessage = messages[0];
-    //             }
-    //             return chat;
-    //           }),
-    //         );
-    //       }),
-    //     ),
-    //   ),
-    //   tap(val => val),
-    //   zoneOperator(),
-    // );
+    // this.chats = this.findChats();
+    MeteorObservable.subscribe('chats').subscribe(() => {
+      MeteorObservable.autorun().subscribe(() => {
+        this.chats = this.findChats();
+      });
+    });
   }
 
   findChats(): Observable<Chat[]> {
@@ -147,14 +134,34 @@ export class ChatsPage implements OnInit {
 
   removeChat(slidingItem: IonItemSliding, chat: Chat): void {
     slidingItem.close();
-    this.chats = this.chats.pipe(
-      map((chatsArray: Chat[]) => {
-        const chatIndex = chatsArray.indexOf(chat);
-        if (chatIndex !== -1) {
-          chatsArray.splice(chatIndex, 1);
+    // this.chats = this.chats.pipe(
+    //   map((chatsArray: Chat[]) => {
+    //     const chatIndex = chatsArray.indexOf(chat);
+    //     if (chatIndex !== -1) {
+    //       chatsArray.splice(chatIndex, 1);
+    //     }
+    //     return chatsArray;
+    //   }),
+    // );
+
+    MeteorObservable.call('removeChat', chat._id).subscribe({
+      error: (e: Error) => {
+        if (e) {
+          this.handleError(e);
         }
-        return chatsArray;
-      }),
-    );
+      },
+    });
+  }
+
+  async handleError(e: Error) {
+    console.error(e);
+
+    const alert = await this.alertCtrl.create({
+      buttons: ['OK'],
+      message: e.message,
+      header: 'Oops!',
+    });
+
+    alert.present();
   }
 }

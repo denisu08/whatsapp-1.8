@@ -5,9 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { MomentModule } from 'angular2-moment';
-import { MessagesPage } from './messages.page';
-// import { MessagesOptionsModule } from '../messages-options/messages-options.module';
-import { MessagesOptionsComponent } from '../messages-options/messages-options';
+import { MessagesOptionsComponent } from './messages-options';
 
 @NgModule({
   imports: [
@@ -17,12 +15,12 @@ import { MessagesOptionsComponent } from '../messages-options/messages-options';
     RouterModule.forChild([
       {
         path: '',
-        component: MessagesPage,
+        component: MessagesOptionsComponent,
       },
     ]),
     MomentModule,
   ],
-  declarations: [MessagesPage, MessagesOptionsComponent],
-  entryComponents: [MessagesOptionsComponent],
+  declarations: [MessagesOptionsComponent],
+  exports: [MessagesOptionsComponent],
 })
-export class MessagesPageModule {}
+export class MessagesOptionsModule {}

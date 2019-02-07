@@ -1,16 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Chats, Users } from 'api/collections';
 import { User } from 'api/models';
-import {
-  AlertController,
-  PopoverController,
-  ModalController,
-} from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { MeteorObservable } from 'meteor-rxjs';
 import * as _ from 'lodash';
 import { Observable, Subscription } from 'rxjs';
 import { startWith, mergeMap } from 'rxjs/operators';
 import { Meteor } from 'meteor/meteor';
+import { merge } from 'rxjs';
 
 @Component({
   selector: 'new-chat',
@@ -24,7 +21,6 @@ export class NewChatComponent implements OnInit {
 
   constructor(
     private alertCtrl: AlertController,
-    private popupController: PopoverController,
     public modalController: ModalController,
   ) {
     this.senderId = Meteor.userId();
@@ -37,10 +33,10 @@ export class NewChatComponent implements OnInit {
   addChat(user): void {
     MeteorObservable.call('addChat', user._id).subscribe({
       next: () => {
-        this.popupController.dismiss();
+        this.modalController.dismiss();
       },
       error: (e: Error) => {
-        this.popupController.dismiss().then(() => {
+        this.modalController.dismiss().then(() => {
           this.handleError(e);
         });
       },
@@ -48,7 +44,14 @@ export class NewChatComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.users = this.findUsers();
+    // this.users = this.findUsers();
+    // Fetch all users matching search pattern
+    const subscription = MeteorObservable.subscribe('users');
+    const autorun = MeteorObservable.autorun();
+
+    merge(subscription, autorun).subscribe(() => {
+      this.users = this.findUsers();
+    });
   }
 
   findUsers(): Observable<User[]> {
