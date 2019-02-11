@@ -1,9 +1,20 @@
 <ion-header>
-  <ion-toolbar color="whatsapp">
+  <ion-toolbar *ngIf="searching" color="whatsapp">
+    <ion-searchbar
+      #searchBar
+      class="seach-bar"
+      color="whatsapp"
+      [showCancelButton]="true"
+      (ionInput)="updateSubscription($event.target.value); searching = true"
+      (ionClear)="updateSubscription(undefined); searching = false"
+    >
+    </ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="!searching" color="whatsapp">
     <ion-title>New Chat</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button class="search-button">
+      <ion-button class="search-button" (click)="showSearchBar()">
         <ion-icon name="search"></ion-icon>
       </ion-button>
       <ion-button class="dismiss-button" (click)="modalController.dismiss()">

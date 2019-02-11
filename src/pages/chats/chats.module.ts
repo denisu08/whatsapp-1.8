@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router';
 
 import { MomentModule } from 'angular2-moment';
 import { ChatsPage } from './chats.page';
-import { NewChatComponent } from './new-chat';
+import { NewChatComponent } from '../new-chat/new-chat';
 import { ChatsOptionsComponent } from '../chat-options/chats-options';
 
 @NgModule({

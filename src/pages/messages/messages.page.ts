@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Chat, Message, MessageType } from 'api/models';
-import { Observable } from 'rxjs';
 import { Chats, Messages, Users } from 'api/collections';
-import { map } from 'rxjs/operators';
+import { map, takeUntil, filter } from 'rxjs/operators';
 import { MeteorObservable } from 'meteor-rxjs';
 import { zoneOperator } from 'meteor-rxjs';
 import { IonContent, PopoverController } from '@ionic/angular';
@@ -17,7 +16,7 @@ import * as moment from 'moment';
 import * as _ from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { MessagesOptionsComponent } from '../messages-options/messages-options';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, Subscriber, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'messages-page',
@@ -39,6 +38,7 @@ export class MessagesPage implements OnInit, OnDestroy {
   senderId: string;
   loadingMessages: boolean;
   messagesComputation: Subscription;
+  messagesBatchCounter = 0;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -81,6 +81,25 @@ export class MessagesPage implements OnInit, OnDestroy {
       this.scrollElement = el;
       this.autoScroller = this.autoScroll();
       this.subscribeMessages();
+
+      // Get total messages count in database so we can have an indication of when to
+      // stop the auto-subscriber
+      MeteorObservable.call('countMessages').subscribe(
+        (messagesCount: number) => {
+          // Chain every scroll event
+          fromEvent(this.scroller, 'scroll')
+            .pipe(
+              // Remove the scroll listener once all messages have been fetched
+              takeUntil(this.autoRemoveScrollListener(messagesCount)),
+              // Filter event handling unless we're at the top of the page
+              filter(() => !this.scroller.scrollTop),
+              // Prohibit parallel subscriptions
+              filter(() => !this.loadingMessages),
+            )
+            // Invoke the messages subscription once all the requirements have been met
+            .forEach(() => this.subscribeMessages());
+        },
+      );
     });
   }
 
@@ -100,17 +119,19 @@ export class MessagesPage implements OnInit, OnDestroy {
     // new dataset is fetched
     this.scrollOffset = this.scroller.scrollHeight;
 
-    MeteorObservable.subscribe('messages', this.selectedChat._id).subscribe(
-      () => {
-        // Keep tracking changes in the dataset and re-render the view
-        if (!this.messagesComputation) {
-          this.messagesComputation = this.autorunMessages();
-        }
+    MeteorObservable.subscribe(
+      'messages',
+      this.selectedChat._id,
+      ++this.messagesBatchCounter,
+    ).subscribe(() => {
+      // Keep tracking changes in the dataset and re-render the view
+      if (!this.messagesComputation) {
+        this.messagesComputation = this.autorunMessages();
+      }
 
-        // Allow incoming subscription requests
-        this.loadingMessages = false;
-      },
-    );
+      // Allow incoming subscription requests
+      this.loadingMessages = false;
+    });
   }
 
   // Detects changes in the messages dataset and re-renders the view
@@ -135,11 +156,13 @@ export class MessagesPage implements OnInit, OnDestroy {
 
   findMessagesDayGroups() {
     // let isEven = false;
+    // console.log('this.selectedChat._id', this.selectedChat._id);
     return Messages.find(
       { chatId: this.selectedChat._id },
       { sort: { createdAt: 1 } },
     ).pipe(
       map((messages: Message[]) => {
+        // console.log('messages', messages);
         const format = 'D MMMM Y';
 
         // Compose missing data that we would like to show in the view
@@ -171,6 +194,29 @@ export class MessagesPage implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.autoScroller.disconnect();
+  }
+
+  // Removes the scroll listener once all messages from the past were fetched
+  autoRemoveScrollListener<T>(messagesCount: number): Observable<T> {
+    return Observable.create((observer: Subscriber<T>) => {
+      Messages.find().subscribe({
+        next: messages => {
+          // Once all messages have been fetched
+          if (messagesCount !== messages.length) {
+            return;
+          }
+
+          // Signal to stop listening to the scroll event
+          observer.next();
+
+          // Finish the observation to prevent unnecessary calculations
+          observer.complete();
+        },
+        error: e => {
+          observer.error(e);
+        },
+      });
+    });
   }
 
   autoScroll(): MutationObserver {

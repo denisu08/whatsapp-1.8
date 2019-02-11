@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Chats, Users } from 'api/collections';
 import { User } from 'api/models';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, IonSearchbar } from '@ionic/angular';
 import { MeteorObservable } from 'meteor-rxjs';
 import * as _ from 'lodash';
-import { Observable, Subscription } from 'rxjs';
-import { startWith, mergeMap } from 'rxjs/operators';
+import { startWith, mergeMap, debounce } from 'rxjs/operators';
 import { Meteor } from 'meteor/meteor';
-import { merge } from 'rxjs';
+import { Observable, Subscription, BehaviorSubject, merge, timer } from 'rxjs';
 
 @Component({
   selector: 'new-chat',
@@ -15,19 +14,58 @@ import { merge } from 'rxjs';
   styleUrls: ['new-chat.scss'],
 })
 export class NewChatComponent implements OnInit {
+  @ViewChild('searchBar') searchBar: IonSearchbar;
+
+  searchPattern: BehaviorSubject<any>;
   senderId: string;
   users: Observable<User[]>;
   usersSubscription: Subscription;
+  searching: boolean;
 
   constructor(
     private alertCtrl: AlertController,
     public modalController: ModalController,
   ) {
     this.senderId = Meteor.userId();
+    this.searchPattern = new BehaviorSubject(undefined);
   }
 
   ngOnInit() {
-    this.loadUsers();
+    // this.loadUsers();
+    this.observeSearchBar();
+  }
+
+  updateSubscription(newValue) {
+    this.searchPattern.next(newValue);
+  }
+
+  observeSearchBar(): void {
+    this.searchPattern
+      .asObservable()
+      .pipe(
+        // Prevents the search bar from being spammed
+        debounce(() => timer(1000)),
+      )
+      .forEach(() => {
+        if (this.usersSubscription) {
+          this.usersSubscription.unsubscribe();
+        }
+
+        this.usersSubscription = this.subscribeUsers();
+      });
+  }
+
+  subscribeUsers(): Subscription {
+    // Fetch all users matching search pattern
+    const subscription = MeteorObservable.subscribe(
+      'users',
+      this.searchPattern.getValue(),
+    );
+    const autorun = MeteorObservable.autorun();
+
+    return merge(subscription, autorun).subscribe(() => {
+      this.users = this.findUsers();
+    });
   }
 
   addChat(user): void {
@@ -43,15 +81,22 @@ export class NewChatComponent implements OnInit {
     });
   }
 
-  loadUsers(): void {
-    // this.users = this.findUsers();
-    // Fetch all users matching search pattern
-    const subscription = MeteorObservable.subscribe('users');
-    const autorun = MeteorObservable.autorun();
+  // loadUsers(): void {
+  //   // this.users = this.findUsers();
+  //   // Fetch all users matching search pattern
+  //   const subscription = MeteorObservable.subscribe('users');
+  //   const autorun = MeteorObservable.autorun();
 
-    merge(subscription, autorun).subscribe(() => {
-      this.users = this.findUsers();
-    });
+  //   merge(subscription, autorun).subscribe(() => {
+  //     this.users = this.findUsers();
+  //   });
+  // }
+
+  showSearchBar() {
+    this.searching = true;
+    setTimeout(() => {
+      this.searchBar.setFocus();
+    }, 150);
   }
 
   findUsers(): Observable<User[]> {

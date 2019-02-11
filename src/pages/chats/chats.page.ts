@@ -12,7 +12,7 @@ import {
 } from '@ionic/angular';
 import { zoneOperator } from 'meteor-rxjs';
 import { ChatsOptionsComponent } from '../chat-options/chats-options';
-import { NewChatComponent } from './new-chat';
+import { NewChatComponent } from '../new-chat/new-chat';
 import { MeteorObservable } from 'meteor-rxjs';
 import { Observable, Subscriber } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
