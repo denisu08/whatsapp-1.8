@@ -22,7 +22,7 @@ import { Mongo } from 'meteor/mongo';
 
 Meteor.publishComposite('users', function(
   pattern: string,
-): PublishCompositeConfig<User> {
+): Meteor.PublishCompositeConfig<User> {
   if (!this.userId) {
     return;
   }
